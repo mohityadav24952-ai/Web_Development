@@ -1,0 +1,812 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CodeCosmos — Build Beyond Limits</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<style>
+  :root{
+    --void: #060611;
+    --panel: #0d0e1c;
+    --panel2: #11132a;
+    --line: rgba(255,255,255,0.08);
+    --cyan: #5ff7ff;
+    --violet: #b16bff;
+    --pink: #ff5fae;
+    --text: #e7e9f5;
+    --muted: #8589a8;
+    --grad: linear-gradient(135deg, var(--cyan), var(--violet) 55%, var(--pink));
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html{ scroll-behavior:smooth; }
+
+  body{
+    font-family:'Space Grotesk', sans-serif;
+    background: var(--void);
+    color: var(--text);
+    overflow-x:hidden;
+    position:relative;
+  }
+
+  /* ===== STARFIELD BACKGROUND ===== */
+  .stars, .stars2, .stars3{
+    position:fixed; inset:0;
+    width:100%; height:100%;
+    pointer-events:none;
+    z-index:0;
+    background-repeat: repeat;
+  }
+  .stars{
+    background-image:
+      radial-gradient(1px 1px at 20px 30px, #fff, transparent),
+      radial-gradient(1px 1px at 90px 120px, #fff, transparent),
+      radial-gradient(1px 1px at 150px 60px, #fff, transparent),
+      radial-gradient(1px 1px at 200px 180px, #fff, transparent),
+      radial-gradient(1px 1px at 260px 40px, #fff, transparent),
+      radial-gradient(1px 1px at 320px 220px, #fff, transparent);
+    background-size: 340px 240px;
+    opacity:0.5;
+    animation: drift 90s linear infinite;
+  }
+  .stars2{
+    background-image:
+      radial-gradient(1.5px 1.5px at 60px 80px, var(--cyan), transparent),
+      radial-gradient(1.5px 1.5px at 180px 10px, var(--violet), transparent),
+      radial-gradient(1.5px 1.5px at 240px 150px, var(--pink), transparent),
+      radial-gradient(1px 1px at 10px 200px, #fff, transparent);
+    background-size: 300px 300px;
+    opacity:0.35;
+    animation: drift 140s linear infinite reverse;
+  }
+  @keyframes drift{
+    from{ background-position: 0 0; }
+    to{ background-position: -1000px 500px; }
+  }
+
+  /* glow orbs */
+  .orb{
+    position:fixed;
+    border-radius:50%;
+    filter: blur(90px);
+    z-index:0;
+    opacity:0.35;
+    pointer-events:none;
+  }
+  .orb1{ width:480px; height:480px; background: var(--violet); top:-150px; left:-120px; animation: floatOrb 18s ease-in-out infinite; }
+  .orb2{ width:420px; height:420px; background: var(--cyan); bottom:-160px; right:-100px; animation: floatOrb 22s ease-in-out infinite reverse; }
+  .orb3{ width:360px; height:360px; background: var(--pink); top:40%; left:50%; animation: floatOrb 26s ease-in-out infinite; }
+  @keyframes floatOrb{
+    0%,100%{ transform: translate(0,0) scale(1); }
+    50%{ transform: translate(40px,-30px) scale(1.1); }
+  }
+
+  section, header, footer{ position:relative; z-index:1; }
+
+  /* ===== NAVBAR ===== */
+  .navbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding: 22px 6vw;
+    backdrop-filter: blur(14px);
+    background: rgba(6,6,17,0.55);
+    border-bottom: 1px solid var(--line);
+    position:sticky;
+    top:0;
+    z-index:50;
+  }
+  .logo{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-family:'JetBrains Mono', monospace;
+    font-weight:700;
+    font-size: 1.3rem;
+    letter-spacing:0.5px;
+  }
+  .logo .bracket{ color: var(--cyan); }
+  .logo .name{
+    background: var(--grad);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .logo i{ color: var(--violet); font-size:1.3rem; animation: spin 8s linear infinite; }
+  @keyframes spin{ to{ transform: rotate(360deg); } }
+
+  .nav-links{
+    display:flex;
+    gap: 40px;
+    list-style:none;
+  }
+  .nav-links a{
+    color: var(--muted);
+    text-decoration:none;
+    font-size: 0.95rem;
+    font-weight:500;
+    position:relative;
+    transition: color .25s ease;
+  }
+  .nav-links a::after{
+    content:'';
+    position:absolute;
+    left:0; bottom:-6px;
+    width:0%; height:2px;
+    background: var(--grad);
+    transition: width .3s ease;
+  }
+  .nav-links a:hover{ color: var(--text); }
+  .nav-links a:hover::after{ width:100%; }
+
+  .nav-cta{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding: 11px 24px;
+    border-radius: 30px;
+    background: var(--grad);
+    color: var(--void);
+    font-weight:700;
+    font-size: 0.9rem;
+    text-decoration:none;
+    box-shadow: 0 0 25px rgba(177,107,255,0.35);
+    transition: transform .2s ease, box-shadow .2s ease;
+  }
+  .nav-cta:hover{ transform: translateY(-2px) scale(1.03); box-shadow: 0 0 35px rgba(177,107,255,0.55); }
+
+  .menu-toggle{ display:none; background:none; border:none; color:var(--text); font-size:1.5rem; }
+
+  /* ===== HERO ===== */
+  .hero{
+    min-height: 92vh;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding: 80px 6vw 60px;
+  }
+  .hero-badge{
+    display:inline-flex;
+    align-items:center;
+    gap: 10px;
+    padding: 8px 20px;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: rgba(255,255,255,0.03);
+    font-family:'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--cyan);
+    letter-spacing: 1px;
+    margin-bottom: 28px;
+    animation: fadeUp 1s ease both;
+  }
+  .hero-badge .dot{
+    width:8px; height:8px; border-radius:50%;
+    background: var(--cyan);
+    box-shadow: 0 0 10px var(--cyan);
+    animation: pulse 1.6s infinite;
+  }
+  @keyframes pulse{
+    0%,100%{ opacity:1; transform:scale(1); }
+    50%{ opacity:0.4; transform:scale(0.7); }
+  }
+
+  .hero h1{
+    font-size: clamp(2.6rem, 7vw, 5.2rem);
+    font-weight:700;
+    line-height: 1.08;
+    max-width: 1000px;
+    animation: fadeUp 1s ease 0.1s both;
+  }
+  .hero h1 .grad{
+    background: var(--grad);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    background-size: 200% auto;
+    animation: shine 6s linear infinite;
+  }
+  @keyframes shine{
+    to{ background-position: 200% center; }
+  }
+
+  .hero p{
+    margin-top: 22px;
+    max-width: 640px;
+    color: var(--muted);
+    font-size: 1.1rem;
+    line-height:1.7;
+    animation: fadeUp 1s ease 0.2s both;
+  }
+
+  .hero-actions{
+    display:flex;
+    gap: 18px;
+    margin-top: 38px;
+    flex-wrap:wrap;
+    justify-content:center;
+    animation: fadeUp 1s ease 0.3s both;
+  }
+  .btn{
+    display:inline-flex;
+    align-items:center;
+    gap: 10px;
+    padding: 16px 32px;
+    border-radius: 10px;
+    font-weight:600;
+    font-size: 1rem;
+    text-decoration:none;
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+  }
+  .btn-primary{
+    background: var(--grad);
+    color: var(--void);
+    box-shadow: 0 0 30px rgba(95,247,255,0.25);
+  }
+  .btn-primary:hover{ transform: translateY(-3px); box-shadow: 0 0 45px rgba(95,247,255,0.4); }
+  .btn-ghost{
+    border: 1px solid var(--line);
+    color: var(--text);
+    background: rgba(255,255,255,0.02);
+  }
+  .btn-ghost:hover{ border-color: var(--cyan); color: var(--cyan); transform: translateY(-3px); }
+
+  @keyframes fadeUp{
+    from{ opacity:0; transform: translateY(28px); }
+    to{ opacity:1; transform: translateY(0); }
+  }
+
+  /* terminal mock */
+  .terminal{
+    margin-top: 60px;
+    width: min(820px, 92vw);
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    background: linear-gradient(180deg, var(--panel2), var(--panel));
+    box-shadow: 0 30px 80px -30px rgba(95,247,255,0.18), 0 0 0 1px rgba(255,255,255,0.02);
+    overflow:hidden;
+    animation: fadeUp 1s ease 0.4s both;
+    text-align:left;
+  }
+  .terminal-head{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--line);
+    background: rgba(255,255,255,0.02);
+  }
+  .terminal-head span{
+    width:12px; height:12px; border-radius:50%;
+  }
+  .dot-red{ background:#ff5f56; }
+  .dot-yellow{ background:#ffbd2e; }
+  .dot-green{ background:#27c93f; }
+  .terminal-head .path{
+    margin-left: 14px;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .terminal-body{
+    padding: 22px 24px;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 0.92rem;
+    line-height:1.9;
+    color: var(--text);
+  }
+  .terminal-body .pre{ color: var(--muted); }
+  .terminal-body .kw{ color: var(--violet); }
+  .terminal-body .str{ color: var(--cyan); }
+  .terminal-body .fn{ color: var(--pink); }
+  .cursor{
+    display:inline-block;
+    width: 9px; height: 1.1em;
+    background: var(--cyan);
+    vertical-align: middle;
+    animation: blink 1s steps(1) infinite;
+    margin-left:4px;
+  }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  /* ===== SECTION HEADERS ===== */
+  .section{
+    padding: 110px 6vw;
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+  .section-tag{
+    font-family:'JetBrains Mono', monospace;
+    color: var(--cyan);
+    font-size: 0.85rem;
+    letter-spacing: 3px;
+    text-transform:uppercase;
+    margin-bottom: 14px;
+    display:block;
+  }
+  .section-title{
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight:700;
+    max-width: 700px;
+    line-height:1.2;
+  }
+  .section-desc{
+    margin-top: 16px;
+    color: var(--muted);
+    max-width: 560px;
+    font-size: 1.05rem;
+    line-height:1.7;
+  }
+
+  /* ===== FEATURE GRID ===== */
+  .feature-grid{
+    display:grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 56px;
+  }
+  .feature-card{
+    padding: 32px;
+    border-radius: 16px;
+    background: linear-gradient(160deg, var(--panel2), var(--panel));
+    border: 1px solid var(--line);
+    position:relative;
+    overflow:hidden;
+    transition: transform .35s ease, border-color .35s ease;
+  }
+  .feature-card::before{
+    content:'';
+    position:absolute;
+    top:-50%; left:-50%;
+    width:200%; height:200%;
+    background: var(--grad);
+    opacity:0;
+    transition: opacity .4s ease;
+    z-index:-1;
+    filter: blur(60px);
+  }
+  .feature-card:hover{
+    transform: translateY(-8px);
+    border-color: rgba(95,247,255,0.35);
+  }
+  .feature-card:hover::before{ opacity:0.15; }
+  .feature-icon{
+    width: 52px; height:52px;
+    border-radius: 12px;
+    display:flex; align-items:center; justify-content:center;
+    background: rgba(95,247,255,0.08);
+    border: 1px solid rgba(95,247,255,0.2);
+    font-size: 1.4rem;
+    color: var(--cyan);
+    margin-bottom: 22px;
+  }
+  .feature-card:nth-child(2) .feature-icon{ color: var(--violet); background: rgba(177,107,255,0.08); border-color: rgba(177,107,255,0.2); }
+  .feature-card:nth-child(3) .feature-icon{ color: var(--pink); background: rgba(255,95,174,0.08); border-color: rgba(255,95,174,0.2); }
+  .feature-card:nth-child(5) .feature-icon{ color: var(--violet); background: rgba(177,107,255,0.08); border-color: rgba(177,107,255,0.2); }
+  .feature-card:nth-child(6) .feature-icon{ color: var(--pink); background: rgba(255,95,174,0.08); border-color: rgba(255,95,174,0.2); }
+
+  .feature-card h3{ font-size: 1.25rem; font-weight:600; margin-bottom: 10px; }
+  .feature-card p{ color: var(--muted); font-size: 0.95rem; line-height:1.6; }
+
+  /* ===== STATS STRIP ===== */
+  .stats-strip{
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    padding: 60px 6vw;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    background: linear-gradient(180deg, rgba(177,107,255,0.04), transparent);
+  }
+  .stat-item{ text-align:center; }
+  .stat-item .num{
+    font-family:'JetBrains Mono', monospace;
+    font-size: clamp(2rem, 4vw, 2.8rem);
+    font-weight:700;
+    background: var(--grad);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .stat-item .lbl{
+    margin-top: 8px;
+    color: var(--muted);
+    font-size: 0.9rem;
+    letter-spacing:1px;
+    text-transform:uppercase;
+  }
+
+  /* ===== TIMELINE / WORKFLOW ===== */
+  .workflow{
+    display:grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+    margin-top: 56px;
+    position:relative;
+  }
+  .workflow::before{
+    content:'';
+    position:absolute;
+    top: 26px;
+    left: 5%;
+    right: 5%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--line) 10%, var(--line) 90%, transparent);
+    z-index:0;
+  }
+  .wf-step{ position:relative; z-index:1; }
+  .wf-num{
+    width: 52px; height:52px;
+    border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'JetBrains Mono', monospace;
+    font-weight:700;
+    border: 1px solid var(--line);
+    background: var(--panel);
+    margin-bottom: 22px;
+    transition: border-color .3s ease, box-shadow .3s ease;
+  }
+  .wf-step:hover .wf-num{
+    border-color: var(--cyan);
+    box-shadow: 0 0 20px rgba(95,247,255,0.3);
+    color: var(--cyan);
+  }
+  .wf-step h4{ font-size: 1.1rem; margin-bottom: 8px; font-weight:600; }
+  .wf-step p{ color: var(--muted); font-size: 0.92rem; line-height:1.6; }
+
+  /* ===== TECH STACK MARQUEE ===== */
+  .marquee-wrap{
+    overflow:hidden;
+    padding: 50px 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    position:relative;
+    margin: 0;
+  }
+  .marquee-wrap::before, .marquee-wrap::after{
+    content:'';
+    position:absolute;
+    top:0; bottom:0;
+    width: 120px;
+    z-index:2;
+  }
+  .marquee-wrap::before{ left:0; background: linear-gradient(90deg, var(--void), transparent); }
+  .marquee-wrap::after{ right:0; background: linear-gradient(270deg, var(--void), transparent); }
+  .marquee{
+    display:flex;
+    gap: 60px;
+    width: max-content;
+    animation: scroll 28s linear infinite;
+  }
+  .marquee span{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 1.3rem;
+    color: var(--muted);
+    display:flex;
+    align-items:center;
+    gap: 12px;
+    white-space:nowrap;
+    transition: color .3s ease;
+  }
+  .marquee span i{ color: var(--cyan); }
+  .marquee span:hover{ color: var(--text); }
+  @keyframes scroll{
+    from{ transform: translateX(0); }
+    to{ transform: translateX(-50%); }
+  }
+
+  /* ===== CTA ===== */
+  .cta-section{
+    text-align:center;
+    padding: 120px 6vw;
+    position:relative;
+  }
+  .cta-section h2{
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    font-weight:700;
+    max-width: 760px;
+    margin: 0 auto;
+    line-height:1.2;
+  }
+  .cta-section .grad{
+    background: var(--grad);
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .cta-section p{
+    margin: 20px auto 0;
+    color: var(--muted);
+    max-width: 520px;
+  }
+  .cta-section .hero-actions{ margin-top: 36px; }
+
+  /* ===== FOOTER ===== */
+  footer{
+    border-top: 1px solid var(--line);
+    padding: 50px 6vw 30px;
+  }
+  .footer-grid{
+    display:grid;
+    grid-template-columns: 1.4fr 1fr 1fr 1fr;
+    gap: 40px;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding-bottom: 40px;
+  }
+  .footer-grid .logo{ margin-bottom: 14px; }
+  .footer-grid p{ color: var(--muted); font-size: 0.92rem; line-height:1.7; max-width:280px; }
+  .footer-col h5{
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    text-transform:uppercase;
+    color: var(--text);
+    margin-bottom: 18px;
+  }
+  .footer-col ul{ list-style:none; display:flex; flex-direction:column; gap: 12px; }
+  .footer-col a{ color: var(--muted); text-decoration:none; font-size: 0.92rem; transition: color .2s ease; }
+  .footer-col a:hover{ color: var(--cyan); }
+
+  .footer-social{ display:flex; gap: 14px; margin-top:20px; }
+  .footer-social a{
+    width: 38px; height:38px;
+    border-radius:50%;
+    border: 1px solid var(--line);
+    display:flex; align-items:center; justify-content:center;
+    color: var(--muted);
+    text-decoration:none;
+    transition: all .25s ease;
+  }
+  .footer-social a:hover{ color: var(--void); background: var(--grad); border-color: transparent; transform: translateY(-3px); }
+
+  .footer-bottom{
+    max-width: 1280px;
+    margin: 0 auto;
+    padding-top: 28px;
+    border-top: 1px solid var(--line);
+    display:flex;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap: 12px;
+    color: var(--muted);
+    font-size: 0.85rem;
+    font-family:'JetBrains Mono', monospace;
+  }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 980px){
+    .nav-links{ display:none; }
+    .menu-toggle{ display:block; }
+    .feature-grid{ grid-template-columns: repeat(2,1fr); }
+    .workflow{ grid-template-columns: repeat(2,1fr); }
+    .workflow::before{ display:none; }
+    .stats-strip{ grid-template-columns: repeat(2,1fr); }
+    .footer-grid{ grid-template-columns: repeat(2,1fr); }
+  }
+  @media (max-width: 600px){
+    .feature-grid{ grid-template-columns: 1fr; }
+    .workflow{ grid-template-columns: 1fr; }
+    .stats-strip{ grid-template-columns: repeat(2,1fr); gap: 36px 16px; }
+    .footer-grid{ grid-template-columns: 1fr; gap: 30px; }
+    .hero-actions{ flex-direction:column; width:100%; }
+    .btn{ justify-content:center; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="stars"></div>
+  <div class="stars2"></div>
+  <div class="orb orb1"></div>
+  <div class="orb orb2"></div>
+  <div class="orb orb3"></div>
+
+  <!-- NAVBAR -->
+  <header class="navbar">
+    <div class="logo">
+      <i class="fa-solid fa-meteor"></i>
+      <span class="bracket">&lt;</span><span class="name">CodeCosmos</span><span class="bracket">/&gt;</span>
+    </div>
+    <nav>
+      <ul class="nav-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#workflow">Workflow</a></li>
+        <li><a href="#stack">Stack</a></li>
+        <li><a href="#cta">Pricing</a></li>
+      </ul>
+    </nav>
+    <a href="#" class="nav-cta"><i class="fa-solid fa-rocket"></i> Launch App</a>
+    <button class="menu-toggle"><i class="fa-solid fa-bars"></i></button>
+  </header>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-badge"><span class="dot"></span> v2.4 — Now with AI Pair Programming</div>
+    <h1>Code at the speed of <span class="grad">imagination.</span></h1>
+    <p>CodeCosmos is the cloud-native workspace where developers build, deploy, and scale software across an infinite universe of tools — all from one orbiting dashboard.</p>
+    <div class="hero-actions">
+      <a href="#" class="btn btn-primary"><i class="fa-solid fa-bolt"></i> Start Building Free</a>
+      <a href="#" class="btn btn-ghost"><i class="fa-solid fa-play"></i> Watch Demo</a>
+    </div>
+
+    <!-- terminal mock -->
+    <div class="terminal">
+      <div class="terminal-head">
+        <span class="dot-red"></span><span class="dot-yellow"></span><span class="dot-green"></span>
+        <span class="path">~/codecosmos/project</span>
+      </div>
+      <div class="terminal-body">
+        <div><span class="pre">$</span> npx codecosmos deploy --orbit production</div>
+        <div><span class="kw">✓</span> Compiling modules<span class="str"> [████████████] 100%</span></div>
+        <div><span class="kw">✓</span> Optimizing assets across <span class="fn">7</span> regions</div>
+        <div><span class="kw">✓</span> Deployment live at <span class="str">codecosmos.app/your-project</span></div>
+        <div class="pre">$ <span class="cursor"></span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats-strip">
+    <div class="stat-item"><div class="num">240K+</div><div class="lbl">Developers</div></div>
+    <div class="stat-item"><div class="num">1.8M</div><div class="lbl">Deploys / Month</div></div>
+    <div class="stat-item"><div class="num">99.99%</div><div class="lbl">Uptime SLA</div></div>
+    <div class="stat-item"><div class="num">42ms</div><div class="lbl">Avg Build Sync</div></div>
+  </div>
+
+  <!-- FEATURES -->
+  <section class="section" id="features">
+    <span class="section-tag">// Core Modules</span>
+    <h2 class="section-title">Everything your stack needs, orbiting in one place.</h2>
+    <p class="section-desc">From instant deploys to AI-assisted code reviews, CodeCosmos brings your entire development universe into a single, fluid interface.</p>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-robot"></i></div>
+        <h3>AI Pair Programmer</h3>
+        <p>Get real-time code suggestions, refactors, and bug fixes powered by context-aware AI trained on your repo.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-server"></i></div>
+        <h3>Edge Deployments</h3>
+        <p>Ship to a global edge network in seconds with zero-config builds and automatic rollback on failure.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-diagram-project"></i></div>
+        <h3>Visual Pipelines</h3>
+        <p>Design CI/CD workflows with a drag-and-drop pipeline builder that syncs straight to your config files.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-shield-halved"></i></div>
+        <h3>Built-in Security</h3>
+        <p>Automated dependency scanning, secret detection, and SOC2-ready audit logs out of the box.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-users"></i></div>
+        <h3>Live Collaboration</h3>
+        <p>Co-edit, comment, and pair-debug with your team in real time — no extra extensions required.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon"><i class="fa-solid fa-chart-line"></i></div>
+        <h3>Realtime Analytics</h3>
+        <p>Monitor performance, errors, and usage with dashboards that update as your app runs.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- WORKFLOW -->
+  <section class="section" id="workflow">
+    <span class="section-tag">// How It Works</span>
+    <h2 class="section-title">From idea to orbit in four steps.</h2>
+
+    <div class="workflow">
+      <div class="wf-step">
+        <div class="wf-num">01</div>
+        <h4>Create Workspace</h4>
+        <p>Spin up a cloud dev environment instantly — no local setup, no dependency hell.</p>
+      </div>
+      <div class="wf-step">
+        <div class="wf-num">02</div>
+        <h4>Write & Pair</h4>
+        <p>Code solo or with your team, with AI suggestions running alongside your cursor.</p>
+      </div>
+      <div class="wf-step">
+        <div class="wf-num">03</div>
+        <h4>Test Automatically</h4>
+        <p>Every push triggers smart test suites and previews across real device environments.</p>
+      </div>
+      <div class="wf-step">
+        <div class="wf-num">04</div>
+        <h4>Deploy Globally</h4>
+        <p>One click sends your build to the edge — live in seconds, monitored in real time.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TECH STACK MARQUEE -->
+  <div class="marquee-wrap" id="stack">
+    <div class="marquee">
+      <span><i class="fa-brands fa-react"></i> React</span>
+      <span><i class="fa-brands fa-node-js"></i> Node.js</span>
+      <span><i class="fa-brands fa-python"></i> Python</span>
+      <span><i class="fa-brands fa-docker"></i> Docker</span>
+      <span><i class="fa-brands fa-aws"></i> AWS</span>
+      <span><i class="fa-brands fa-vuejs"></i> Vue</span>
+      <span><i class="fa-brands fa-golang"></i> Go</span>
+      <span><i class="fa-brands fa-rust"></i> Rust</span>
+      <span><i class="fa-solid fa-database"></i> PostgreSQL</span>
+      <span><i class="fa-brands fa-react"></i> React</span>
+      <span><i class="fa-brands fa-node-js"></i> Node.js</span>
+      <span><i class="fa-brands fa-python"></i> Python</span>
+      <span><i class="fa-brands fa-docker"></i> Docker</span>
+      <span><i class="fa-brands fa-aws"></i> AWS</span>
+      <span><i class="fa-brands fa-vuejs"></i> Vue</span>
+      <span><i class="fa-brands fa-golang"></i> Go</span>
+      <span><i class="fa-brands fa-rust"></i> Rust</span>
+      <span><i class="fa-solid fa-database"></i> PostgreSQL</span>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <section class="cta-section" id="cta">
+    <h2>Ready to launch your next project <span class="grad">into orbit?</span></h2>
+    <p>Join thousands of developers building faster, smarter, and further than ever before with CodeCosmos.</p>
+    <div class="hero-actions">
+      <a href="#" class="btn btn-primary"><i class="fa-solid fa-rocket"></i> Get Started Free</a>
+      <a href="#" class="btn btn-ghost"><i class="fa-solid fa-comments"></i> Talk to Sales</a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-grid">
+      <div>
+        <div class="logo"><i class="fa-solid fa-meteor"></i><span class="bracket">&lt;</span><span class="name">CodeCosmos</span><span class="bracket">/&gt;</span></div>
+        <p>The cloud-native development platform built for teams who think beyond the stratosphere.</p>
+        <div class="footer-social">
+          <a href="#"><i class="fa-brands fa-github"></i></a>
+          <a href="#"><i class="fa-brands fa-twitter"></i></a>
+          <a href="#"><i class="fa-brands fa-discord"></i></a>
+          <a href="#"><i class="fa-brands fa-linkedin-in"></i></a>
+        </div>
+      </div>
+      <div class="footer-col">
+        <h5>Product</h5>
+        <ul>
+          <li><a href="#">Features</a></li>
+          <li><a href="#">Pricing</a></li>
+          <li><a href="#">Integrations</a></li>
+          <li><a href="#">Changelog</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Resources</h5>
+        <ul>
+          <li><a href="#">Documentation</a></li>
+          <li><a href="#">API Reference</a></li>
+          <li><a href="#">Community</a></li>
+          <li><a href="#">Status</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 CodeCosmos. All systems operational.</span>
+      <span>Privacy · Terms · Security</span>
+    </div>
+  </footer>
+
+</body>
+</html>
